@@ -26,7 +26,7 @@ The model was validated on strictly unseen data to confirm its predictive power:
 
 ## Repository Structure
 * `main.py`: Full Python script including data cleaning, backtesting engine, and performance visualization.
-* `Research_Note.pdf`: Detailed research paper covering the mathematical framework, methodology, and critical analysis.
+* `DEBOVE_Augustin_WTI_Brent_Arbitrage.pdf`: Detailed research paper covering the mathematical framework, methodology, and critical analysis.
 * `requirements.txt`: List of Python dependencies required to reproduce the results.
 
 ---
