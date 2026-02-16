@@ -4,9 +4,9 @@ import yfinance as yf
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-# =============================================================================
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # PART 1 : OPTIMIZATION 
-# =============================================================================
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # downloading recent data
 tickers = ['CL=F', 'BZ=F']
@@ -117,23 +117,19 @@ print("\nTOP 5 BY SHARPE RATIO")
 top_5_sharpe = df_opti.sort_values(by='Sharpe', ascending=False).head(5)
 print(top_5_sharpe)
 
-# Automatic link: find the best parameters to use in Part 2
-best_row = df_opti.sort_values(by='Sharpe', ascending=False).iloc[0]
-best_window = int(best_row['Fenetre'])
-best_z_entry = best_row['Z_score']
 
-# =============================================================================
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # PART 2 : OUT-OF-SAMPLE TEST
-# =============================================================================
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# 1. DOWNLOADING DATA
+#  DOWNLOADING DATA
 tickers = ['CL=F', 'BZ=F']
 end_date = datetime.now().strftime('%Y-%m-%d') 
 
 # Fetching data that is unknown for the model (Out-of-Sample)
 raw_data_oos = yf.download(tickers, start="2024-01-02", end=end_date, progress=False)['Close']
 
-# 2. DATA CLEANING AND ALIGNMENT
+#  DATA CLEANING AND ALIGNMENT
 data_oos = pd.DataFrame()
 data_oos['WTI'] = raw_data_oos['CL=F']
 data_oos['Brent'] = raw_data_oos['BZ=F']
@@ -141,12 +137,12 @@ data_oos['Brent'] = raw_data_oos['BZ=F']
 # Aligning time series: we only keep observations where both NYMEX (WTI) and ICE (Brent) markets are open.
 data_oos.dropna(inplace=True) 
 
-# 3. PARAMETERIZATION 
+#  PARAMETERIZATION 
 # These are automatically assigned from the optimization above
 stop_loss_z = 3.5 
 transaction_cost = 0.05 
 
-# 4. INDICATORS
+# INDICATORS
 data_oos['spread'] = data_oos['WTI'] - data_oos['Brent']
 data_oos['spread_diff'] = data_oos['spread'].diff()
 
@@ -156,30 +152,30 @@ std_oos = data_oos['spread'].rolling(window=best_window).std()
 data_oos['z_score'] = (data_oos['spread'] - mean_oos) / std_oos
 
 
-# Step A: Initialize signal container with NaN (Empty)
+# Initialize signal container with NaN (Empty)
 data_oos['position'] = np.nan 
 
-# Step B: Entry Signals
+# Entry Signals
 # Long if Z < -best_z_entry
 data_oos.loc[data_oos['z_score'] < -best_z_entry, 'position'] = 1  
 # Short if Z > best_z_entry
 data_oos.loc[data_oos['z_score'] > best_z_entry, 'position'] = -1 
 
-# Step C: Exit Conditions (Mean Reversion)
+# Exit Conditions (Mean Reversion)
 # Exit when Z returns inside [-0.5, 0.5]. 
 data_oos.loc[data_oos['z_score'].abs() < 0.5, 'position'] = 0
 
-# Step D: Stop Loss (Risk Management)
+# Stop Loss (Risk Management)
 # Force exit if Z explodes (> 3.5)
 data_oos.loc[data_oos['z_score'].abs() > stop_loss_z, 'position'] = 0
 
-# Step E: Propagation (The fix)
+# Propagation (The fix)
 data_oos['position'] = data_oos['position'].ffill()
 
-# Step F: Handle the very beginning (before first signal)
+# Handle the very beginning (before first signal)
 data_oos['position'] = data_oos['position'].fillna(0)
 
-# 6. PERFORMANCE CALCULATION
+# PERFORMANCE CALCULATION
 trades_oos = data_oos['position'].diff().fillna(0).abs()
 costs_oos = trades_oos * transaction_cost
 
@@ -189,7 +185,7 @@ data_oos['strategy_return'] = (data_oos['position'].shift(1) * data_oos['spread_
 # Cumulative Returns
 data_oos['cum_profit'] = data_oos['strategy_return'].cumsum()
 
-# 7. VISUALIZATION & METRICS
+#  VISUALIZATION & METRICS
 final_pnl = data_oos['cum_profit'].iloc[-1]
 sharpe_ratio = (data_oos['strategy_return'].mean() / data_oos['strategy_return'].std()) * np.sqrt(252)
 
