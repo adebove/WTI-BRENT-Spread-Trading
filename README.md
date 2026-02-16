@@ -1,33 +1,4 @@
-# WTI/Brent Statistical Arbitrage Strategy
-
-**Quantitative research project: Implementation of a mean-reversion strategy on energy futures spreads.**
-
-## Project Overview
-This repository contains a systematic algorithmic trading strategy exploiting the statistical co-integration between **WTI (NYMEX)** and **Brent (ICE)** Crude Oil futures. The project demonstrates a full quantitative pipeline, from raw data ingestion and synchronization to risk-adjusted performance analysis.
-
-## Technical Highlights
-* **Data Engineering and Synchronization:** The framework implements a custom alignment logic to handle asynchronous trading calendars. By reconciling NYMEX and ICE exchange holidays, the backtest eliminates data stale-pricing bias.
-* **Mean-Reversion Engine:** Signals are generated via a dynamic Z-Score calculated on a rolling lookback window. This normalizes the spread volatility and identifies statistically significant entry and exit points.
-* **Robustness vs. Overfitting:** Parameter selection (window size and thresholds) was conducted using stability cluster analysis rather than raw historical optimization. This ensures higher generalization capabilities on unseen data.
-* **Risk Management:** A hard statistical stop-loss is integrated at $|Z| > 3.5$ to protect the portfolio against structural regime shifts or geopolitical shocks.
-
-## Out-of-Sample Results (Jan 2024 - Feb 2026)
-The model was validated on strictly unseen data to confirm its predictive power:
-* **Sharpe Ratio:** 2.17
-* **Net PnL per Barrel:** $14.60 (inclusive of estimated transaction costs)
-* **Execution Logic:** Entry at $|Z| > 1.9$, Mean-reversion exit at $|Z| < 0.5$.
-
-
-
-## Technology Stack
-* **Language:** Python 3.x
-* **Data Science Libraries:** Pandas (data manipulation), NumPy (vectorized computations), yfinance (market data), Matplotlib (visualization).
-* **Research Documentation:** Technical note authored in LaTeX for academic-grade presentation.
-
-## Repository Structure
-* `main.py`: Full Python script including data cleaning, backtesting engine, and performance visualization.
-* `DEBOVE_Augustin_WTI_Brent_Arbitrage.pdf`: Detailed research paper covering the mathematical framework, methodology, and critical analysis.
-* `requirements.txt`: List of Python dependencies required to reproduce the results.
+WTI-Brent Statistical ArbitrageThis project is a personal implementation of a mean-reversion strategy on the WTI/Brent spread. My goal was to move from the theory found in books like The World for Sale (Blas & Farchy) to a functional Python framework that handles the "messy" reality of market data.+2Why this spread?The WTI (NYMEX) and Brent (ICE) spread is one of the most significant benchmarks in the energy market. Because these two crudes are global substitutes, they are fundamentally co-integrated. I built this bot to exploit transient "dislocations" when the spread deviates too far from its historical mean.+2Technical Deep Dive1. The Synchronization ChallengeOne of the main hurdles I faced was aligning the data. NYMEX (US) and ICE (UK) have different exchange holidays (e.g., Labor Day vs. Bank Holidays). I implemented an inner-join logic to ensure the backtest only runs on days where both markets are active, preventing the algorithm from trading on "stale" prices.+12. Signal Logic & ExecutionThe bot uses a vectorized state machine to ensure speed and avoid look-ahead bias.+1Entry: When the Z-Score exceeds $|1.9|$, the spread is considered overextended.Exit: I use a ffill() logic to hold the position until the Z-Score returns to a "normal" range of $|0.5|$.+1Risk Control: A hard stop-loss is triggered at $|3.5|$ to protect against black swan events or structural shifts in the oil market.3. Stability over "Perfect" ResultsDuring the optimization phase (2000-2023), I deliberately avoided choosing the parameters with the absolute highest profit. Instead, I selected the 3rd best parameter set ($Z=1.9, n=10$) because it showed the most stability across nearby values, reducing the risk of overfitting .+2Out-of-Sample Performance (2024 - 2026)Tested on strictly unseen data, the strategy remained robust:+2Sharpe Ratio: 2.17 +1Net PnL: $14.60 / barrel (inclusive of a $0.05/bbl transaction cost to simulate slippage).+1
 
 ---
 **Contact:** Augustin Debove
