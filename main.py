@@ -141,6 +141,8 @@ data_oos.dropna(inplace=True)
 # These are automatically assigned from the optimization above
 stop_loss_z = 3.5 
 transaction_cost = 0.05 
+best_window = 10    # we chose this rolling window and this z score because it demonstrated the best performance out-of-sample among the best parameters found during the optimization
+best_z_entry = 1.9  
 
 # INDICATORS
 data_oos['spread'] = data_oos['WTI'] - data_oos['Brent']
