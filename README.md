@@ -1,19 +1,19 @@
 # WTI-Brent Statistical Arbitrage
 
-This project is a personal implementation of a mean-reversion strategy on the **WTI/Brent spread**. [cite_start]I decided to build this framework to bridge the gap between my Mathematics/CS background and my growing interest in energy markets [cite: 154-155, 308-309].
+This project is a personal implementation of a mean-reversion strategy on the **WTI/Brent spread**.I decided to build this framework to bridge the gap between my Mathematics/CS background and my growing interest in energy markets.
 
-[cite_start]The goal was to move past theoretical assumptions and confront the "messy" reality of market data: asynchronous calendars, execution slippage, and the danger of overfitting [cite: 310, 339, 447-448].
+The goal was to move past theoretical assumptions and confront the "messy" reality of market data: asynchronous calendars, execution slippage, and the danger of overfitting.
 
 ## Why this spread?
-[cite_start]The WTI (NYMEX) and Brent (ICE) spread is a primary benchmark for global crude oil[cite: 158, 314]. [cite_start]Because these two grades are global substitutes, their prices are fundamentally co-integrated[cite: 179, 335]. [cite_start]I built this bot to identify and exploit transient "dislocations" where the spread deviates from its historical mean[cite: 180, 336].
+The WTI (NYMEX) and Brent (ICE) spread is a primary benchmark for global crude oil. Because these two grades are global substitutes, their prices are fundamentally co-integrated. I built this bot to identify and exploit transient "dislocations" where the spread deviates from its historical mean.
 
 ## Technical Highlights
 
 ### 1. The Data Synchronization Challenge
-One of the main hurdles was aligning the data. [cite_start]NYMEX (US) and ICE (UK) have different exchange holidays (e.g., Labor Day vs. UK Bank Holidays)[cite: 204, 360, 449]. [cite_start]I implemented an inner-join logic in Python to ensure the backtest only runs on days where both markets are active, preventing the algorithm from trading on "stale" prices[cite: 53, 204, 360].
+One of the main hurdles was aligning the data. NYMEX (US) and ICE (UK) have different exchange holidays (e.g., Labor Day vs. UK Bank Holidays). I implemented an inner-join logic in Python to ensure the backtest only runs on days where both markets are active, preventing the algorithm from trading on "stale" prices.
 
 ### 2. Signal Logic & Execution
-[cite_start]The bot is built as a vectorized state machine to ensure speed and avoid look-ahead bias[cite: 211, 367].
+The bot is built as a vectorized state machine to ensure speed and avoid look-ahead bias[cite: 211, 367].
 * [cite_start]**Entry**: A dynamic Z-Score is calculated on a rolling window[cite: 192, 348]. I take a position when $|Z| > [cite_start]1.9$[cite: 198, 354].
 * [cite_start]**Position Management**: I use `.ffill()` logic to maintain the "Hold" state until a clear exit signal is triggered, solving the issue of "flickering" signals [cite: 82-83, 392].
 * [cite_start]**Exit**: The position is liquidated when the spread returns to equilibrium ($|Z| < 0.5$)[cite: 220, 378].
