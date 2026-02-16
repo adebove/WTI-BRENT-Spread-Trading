@@ -29,4 +29,4 @@ Tested on strictly unseen data, the model remained robust:
 
 ---
 **Contact**: Augustin Debove  
-[cite_start]**References**: *The World for Sale* (Javier Blas & Jack Farchy), *Python for Algorithmic Trading* (Yves Hilpisch)[cite: 151, 155, 305, 309].
+**References**: *The World for Sale* (Javier Blas & Jack Farchy), *Python for Algorithmic Trading* (Yves Hilpisch).
